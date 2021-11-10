@@ -24,17 +24,17 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 CONTENT_IMG_PATH = "inputImage.jpg"
 STYLE_IMG_PATH = "styleImage.jpg"
 
-CONTENT_IMG_H = 500
-CONTENT_IMG_W = 500
+CONTENT_IMG_H = 100
+CONTENT_IMG_W = 100
 
-STYLE_IMG_H = 500
-STYLE_IMG_W = 500
+STYLE_IMG_H = 100
+STYLE_IMG_W = 100
 
-CONTENT_WEIGHT = 0.001  # Alpha weight.
-STYLE_WEIGHT = 100  # Beta weight.
-TOTAL_WEIGHT = 0.001
+CONTENT_WEIGHT = 1  # Alpha weight.
+STYLE_WEIGHT = 1  # Beta weight.
+TOTAL_WEIGHT = 1e-4
 
-TRANSFER_ROUNDS = 3
+TRANSFER_ROUNDS = 10
 
 # =============================<Helper Fuctions>=================================
 '''
