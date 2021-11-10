@@ -21,9 +21,8 @@ tf.random.set_seed(1618)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # TODO: Take something cooler
-CONTENT_IMG_PATH = "inputImages/seashore.jpg"
-STYLE_IMG_PATH = "styleImages/vangogh.jpg"
-OUTPUT_IMG_PATH = "outputImages/output.jpg"
+CONTENT_IMG_PATH = "inputImage.jpg"
+STYLE_IMG_PATH = "styleImage.jpg"
 
 CONTENT_IMG_H = 500
 CONTENT_IMG_W = 500
@@ -31,9 +30,9 @@ CONTENT_IMG_W = 500
 STYLE_IMG_H = 500
 STYLE_IMG_W = 500
 
-CONTENT_WEIGHT = 0.1  # Alpha weight.
-STYLE_WEIGHT = 1.0  # Beta weight.
-TOTAL_WEIGHT = 1.0
+CONTENT_WEIGHT = 0.001  # Alpha weight.
+STYLE_WEIGHT = 100  # Beta weight.
+TOTAL_WEIGHT = 0.001
 
 TRANSFER_ROUNDS = 3
 
@@ -165,12 +164,11 @@ def styleTransfer(cData, sData, tData):
     loss += TOTAL_WEIGHT * totalLoss(genTensor)
 
     print("   Setting up Gradients")
-    # TODO: Setup gradients or use K.gradients().
     outputs = [loss]
     grads = K.gradients(loss, genTensor)[0]
     outputs += grads
 
-    k_f = kAndFlatten(K.function([genTensor], outputs))
+    k_f = kAndFlatten(K.function([genTensor], outputs))  # Function that reshapes array to flat
     gen = tData.flatten()  # Start with input image
     print(gen.shape)
 
@@ -183,7 +181,7 @@ def styleTransfer(cData, sData, tData):
         print("      Loss: ", gen_loss)
 
         img = deprocessImage(gen)
-        saveFile = f"outputImages/output_{i}.jpg"
+        saveFile = f"output_{i}.jpg"
 
         save_img(saveFile, img)
         print("      Image saved to \"%s\"." % saveFile)
