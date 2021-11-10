@@ -22,7 +22,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # TODO: Take something cooler
 CONTENT_IMG_PATH = "inputImage.jpg"
-STYLE_IMG_PATH = "styleImage.jpg"
+STYLE_IMG_PATH = "styleImage.png"
 
 CONTENT_IMG_H = 100
 CONTENT_IMG_W = 100
@@ -30,7 +30,7 @@ CONTENT_IMG_W = 100
 STYLE_IMG_H = 100
 STYLE_IMG_W = 100
 
-CONTENT_WEIGHT = 1  # Alpha weight.
+CONTENT_WEIGHT = 0.025  # Alpha weight.
 STYLE_WEIGHT = 1  # Beta weight.
 TOTAL_WEIGHT = 1e-4
 
