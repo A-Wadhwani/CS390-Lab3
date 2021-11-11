@@ -21,8 +21,8 @@ tf.random.set_seed(1618)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # TODO: Take something cooler
-CONTENT_IMG_PATH = "inputImage.jpg"
-STYLE_IMG_PATH = "styleImage.png"
+CONTENT_IMG_PATH = "inputImage2.jpg"
+STYLE_IMG_PATH = "styleImage3.jpg"
 
 CONTENT_IMG_H = 100
 CONTENT_IMG_W = 100
@@ -30,9 +30,9 @@ CONTENT_IMG_W = 100
 STYLE_IMG_H = 100
 STYLE_IMG_W = 100
 
-CONTENT_WEIGHT = 0.025  # Alpha weight.
-STYLE_WEIGHT = 1  # Beta weight.
-TOTAL_WEIGHT = 1e-4
+CONTENT_WEIGHT = 5e-5  # Alpha weight.
+STYLE_WEIGHT = 1 - CONTENT_WEIGHT # Beta weight.
+TOTAL_WEIGHT = 2e-6
 
 TRANSFER_ROUNDS = 10
 
@@ -90,7 +90,7 @@ def kAndFlatten(func):
         x = x.reshape((1, CONTENT_IMG_H, CONTENT_IMG_W, 3))
         ret = func([x])
         loss = ret[0]
-        grad = ret[0].flatten().astype('float64')
+        grad = ret[1].flatten().astype('float64')
         return loss, grad
 
     return F
@@ -159,14 +159,14 @@ def styleTransfer(cData, sData, tData):
         layer_f = outputDict[layerName]
         style_f = layer_f[1, :, :, :]
         out_f = layer_f[2, :, :, :]
-        loss += (STYLE_WEIGHT / len(styleLayerNames)) * styleLoss(style_f, out_f)
+        loss += STYLE_WEIGHT * styleLoss(style_f, out_f)
     print("   Calculating total var loss")
     loss += TOTAL_WEIGHT * totalLoss(genTensor)
 
     print("   Setting up Gradients")
     outputs = [loss]
     grads = K.gradients(loss, genTensor)[0]
-    outputs += grads
+    outputs.append(grads)
 
     k_f = kAndFlatten(K.function([genTensor], outputs))  # Function that reshapes array to flat
     gen = tData.flatten()  # Start with input image
@@ -175,9 +175,9 @@ def styleTransfer(cData, sData, tData):
     print("   Beginning transfer.")
     for i in range(TRANSFER_ROUNDS):
         print("   Step %d." % i)
-        gen_new, gen_loss, _ = fmin_l_bfgs_b(func=k_f, x0=gen, maxiter=50)
+        gen_new, gen_loss, _ = fmin_l_bfgs_b(func=k_f, x0=gen, maxfun=40)
 
-        gen = gen_new.copy()
+        gen = np.copy(gen_new)
         print("      Loss: ", gen_loss)
 
         img = deprocessImage(gen)
