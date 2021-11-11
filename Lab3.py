@@ -30,11 +30,11 @@ CONTENT_IMG_W = 750
 STYLE_IMG_H = 750
 STYLE_IMG_W = 750
 
-CONTENT_WEIGHT = 0.01  # Alpha weight.
+CONTENT_WEIGHT = 1e-12  # Alpha weight.
 STYLE_WEIGHT = 0.99  # Beta weight.
 TOTAL_WEIGHT = 6e-6
 
-TRANSFER_ROUNDS = 20
+TRANSFER_ROUNDS = 14
 
 # =============================<Helper Fuctions>=================================
 '''
@@ -171,7 +171,7 @@ def styleTransfer(cData, sData, tData):
     print("   Beginning transfer.")
     for i in range(TRANSFER_ROUNDS):
         print("   Step %d." % i)
-        gen_new, gen_loss, _ = fmin_l_bfgs_b(func=k_f, x0=gen, maxiter=10)
+        gen_new, gen_loss, _ = fmin_l_bfgs_b(func=k_f, x0=gen, maxiter=50)
 
         gen = np.copy(gen_new)
         print("      Loss: ", gen_loss)
