@@ -30,8 +30,8 @@ CONTENT_IMG_W = 750
 STYLE_IMG_H = 750
 STYLE_IMG_W = 750
 
-CONTENT_WEIGHT = 1.00  # Alpha weight.
-STYLE_WEIGHT = 0.01  # Beta weight.
+CONTENT_WEIGHT = 0.01  # Alpha weight.
+STYLE_WEIGHT = 0.99  # Beta weight.
 TOTAL_WEIGHT = 6e-6
 
 TRANSFER_ROUNDS = 20
