@@ -197,5 +197,20 @@ def main():
     print("Done. Goodbye.")
 
 
+def joinPhotos():  # https://stackoverflow.com/questions/30227466/combine-several-images-horizontally-with-python
+    images = [Image.open(x) for x in ['inputImage5.jpg', 'styleImage1.jpg', 'output_13.jpg']]
+
+    new_im = Image.new('RGB', (CONTENT_IMG_W * 3, CONTENT_IMG_H))
+
+    x_offset = 0
+    for im in images:
+        im = im.resize(size=(CONTENT_IMG_H, CONTENT_IMG_W))
+        new_im.paste(im, (x_offset, 0))
+        x_offset += 750
+
+    new_im.save('final_result.jpg')
+    print("Done Joining Photos.")
+
+
 if __name__ == "__main__":
-    main()
+    joinPhotos()
