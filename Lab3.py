@@ -21,8 +21,8 @@ tf.random.set_seed(1618)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # TODO: Take something cooler
-CONTENT_IMG_PATH = "inputImage2.jpg"
-STYLE_IMG_PATH = "styleImage3.jpg"
+CONTENT_IMG_PATH = "inputImage1.jpg"
+STYLE_IMG_PATH = "styleImage1.jpg"
 
 CONTENT_IMG_H = 100
 CONTENT_IMG_W = 100
@@ -30,11 +30,11 @@ CONTENT_IMG_W = 100
 STYLE_IMG_H = 100
 STYLE_IMG_W = 100
 
-CONTENT_WEIGHT = 5e-5  # Alpha weight.
-STYLE_WEIGHT = 1 - CONTENT_WEIGHT # Beta weight.
-TOTAL_WEIGHT = 2e-6
+CONTENT_WEIGHT = 0.75  # Alpha weight.
+STYLE_WEIGHT = 0.25  # Beta weight.
+TOTAL_WEIGHT = 1e-60
 
-TRANSFER_ROUNDS = 10
+TRANSFER_ROUNDS = 2
 
 # =============================<Helper Fuctions>=================================
 '''
@@ -132,8 +132,6 @@ Save the newly generated and deprocessed images.
 
 
 def styleTransfer(cData, sData, tData):
-    disable_eager_execution()  # K.gradients is not supported  unless disabled
-
     print("   Building transfer model.")
     contentTensor = K.variable(cData)
     styleTensor = K.variable(sData)
@@ -144,7 +142,7 @@ def styleTransfer(cData, sData, tData):
     outputDict = dict([(layer.name, layer.output) for layer in model.layers])
 
     print("   VGG19 model loaded.")
-    loss = 0.0
+    loss = K.variable(0.)
     styleLayerNames = ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1", "block5_conv1"]
     contentLayerName = "block5_conv2"
 
@@ -152,30 +150,28 @@ def styleTransfer(cData, sData, tData):
     contentLayer = outputDict[contentLayerName]
     contentOutput = contentLayer[0, :, :, :]
     genOutput = contentLayer[2, :, :, :]
-    loss += CONTENT_WEIGHT * contentLoss(contentOutput, genOutput)
+    loss = loss + CONTENT_WEIGHT * contentLoss(contentOutput, genOutput)
 
     print("   Calculating style loss.")
     for layerName in styleLayerNames:
         layer_f = outputDict[layerName]
         style_f = layer_f[1, :, :, :]
         out_f = layer_f[2, :, :, :]
-        loss += STYLE_WEIGHT * styleLoss(style_f, out_f)
+        loss = loss + (STYLE_WEIGHT / len(styleLayerNames)) * styleLoss(style_f, out_f)
     print("   Calculating total var loss")
-    loss += TOTAL_WEIGHT * totalLoss(genTensor)
+    loss = loss + TOTAL_WEIGHT * totalLoss(genTensor)
 
     print("   Setting up Gradients")
-    outputs = [loss]
     grads = K.gradients(loss, genTensor)[0]
-    outputs.append(grads)
+    outputs = [loss, grads]
 
     k_f = kAndFlatten(K.function([genTensor], outputs))  # Function that reshapes array to flat
     gen = tData.flatten()  # Start with input image
-    print(gen.shape)
 
     print("   Beginning transfer.")
     for i in range(TRANSFER_ROUNDS):
         print("   Step %d." % i)
-        gen_new, gen_loss, _ = fmin_l_bfgs_b(func=k_f, x0=gen, maxfun=40)
+        gen_new, gen_loss, _ = fmin_l_bfgs_b(func=k_f, x0=gen, maxiter=20)
 
         gen = np.copy(gen_new)
         print("      Loss: ", gen_loss)
@@ -191,6 +187,7 @@ def styleTransfer(cData, sData, tData):
 # =========================<Main>================================================
 
 def main():
+    disable_eager_execution()  # K.gradients is not supported unless disabled
     print("Starting style transfer program.")
     raw = getRawData()
     cData = preprocessData(raw[0])  # Content image.
