@@ -21,20 +21,20 @@ tf.random.set_seed(1618)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # TODO: Take something cooler
-CONTENT_IMG_PATH = "inputImage1.jpg"
+CONTENT_IMG_PATH = "inputImage5.jpg"
 STYLE_IMG_PATH = "styleImage1.jpg"
 
-CONTENT_IMG_H = 100
-CONTENT_IMG_W = 100
+CONTENT_IMG_H = 750
+CONTENT_IMG_W = 750
 
-STYLE_IMG_H = 100
-STYLE_IMG_W = 100
+STYLE_IMG_H = 750
+STYLE_IMG_W = 750
 
-CONTENT_WEIGHT = 0.75  # Alpha weight.
-STYLE_WEIGHT = 0.25  # Beta weight.
-TOTAL_WEIGHT = 1e-60
+CONTENT_WEIGHT = 1.00  # Alpha weight.
+STYLE_WEIGHT = 0.01  # Beta weight.
+TOTAL_WEIGHT = 6e-6
 
-TRANSFER_ROUNDS = 2
+TRANSFER_ROUNDS = 20
 
 # =============================<Helper Fuctions>=================================
 '''
@@ -171,12 +171,12 @@ def styleTransfer(cData, sData, tData):
     print("   Beginning transfer.")
     for i in range(TRANSFER_ROUNDS):
         print("   Step %d." % i)
-        gen_new, gen_loss, _ = fmin_l_bfgs_b(func=k_f, x0=gen, maxiter=20)
+        gen_new, gen_loss, _ = fmin_l_bfgs_b(func=k_f, x0=gen, maxiter=10)
 
         gen = np.copy(gen_new)
         print("      Loss: ", gen_loss)
 
-        img = deprocessImage(gen)
+        img = deprocessImage(np.copy(gen_new))
         saveFile = f"output_{i}.jpg"
 
         save_img(saveFile, img)
