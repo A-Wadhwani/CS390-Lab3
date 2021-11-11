@@ -1,18 +1,16 @@
 import os
+import random
+import warnings
 
-import PIL.Image
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
 import tensorflow.keras.backend as K
-import random
-from scipy.optimize import fmin_l_bfgs_b
 from PIL import Image
+from scipy.optimize import fmin_l_bfgs_b
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html
 from tensorflow.keras.applications import vgg19
 from tensorflow.keras.preprocessing.image import load_img, save_img
 from tensorflow.python.framework.ops import disable_eager_execution
-import warnings
 
 random.seed(1618)
 np.random.seed(1618)
@@ -21,8 +19,8 @@ tf.random.set_seed(1618)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # TODO: Take something cooler
-CONTENT_IMG_PATH = "inputImage5.jpg"
-STYLE_IMG_PATH = "styleImage1.jpg"
+CONTENT_IMG_PATH = "inputImages/inputImage5.jpg"
+STYLE_IMG_PATH = "styleImages/styleImage1.jpg"
 
 CONTENT_IMG_H = 750
 CONTENT_IMG_W = 750
@@ -177,7 +175,7 @@ def styleTransfer(cData, sData, tData):
         print("      Loss: ", gen_loss)
 
         img = deprocessImage(np.copy(gen_new))
-        saveFile = f"output_{i}.jpg"
+        saveFile = f"outputImages/output_{i}.jpg"
 
         save_img(saveFile, img)
         print("      Image saved to \"%s\"." % saveFile)
@@ -198,7 +196,7 @@ def main():
 
 
 def joinPhotos():  # https://stackoverflow.com/questions/30227466/combine-several-images-horizontally-with-python
-    images = [Image.open(x) for x in ['inputImage5.jpg', 'styleImage1.jpg', 'output_13.jpg']]
+    images = [Image.open(x) for x in [CONTENT_IMG_PATH, STYLE_IMG_PATH, 'outputImages/output_13.jpg']]
 
     new_im = Image.new('RGB', (CONTENT_IMG_W * 3, CONTENT_IMG_H))
 
@@ -213,4 +211,5 @@ def joinPhotos():  # https://stackoverflow.com/questions/30227466/combine-severa
 
 
 if __name__ == "__main__":
+    main()
     joinPhotos()
